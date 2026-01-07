@@ -1,0 +1,179 @@
+@{
+    ViewData["Title"] = "Tableau de Bord";
+}
+
+<div class="space-y-8">
+    
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Card 1 -->
+        <div class="relative overflow-hidden rounded-2xl bg-white/60 backdrop-blur-xl border border-white/50 shadow-lg p-6 group transition-all hover:bg-white/70">
+            <div class="absolute right-4 top-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                <i class="bi bi-book text-6xl text-brand-600"></i>
+            </div>
+            <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Total Livres</p>
+            <p class="text-3xl font-bold text-slate-800 mt-2">@ViewData["TotalBooks"]</p>
+            <div class="mt-4 flex items-center text-sm font-medium text-brand-600">
+                <a asp-controller="Livres" asp-action="Index" class="hover:underline">Voir les livres &rarr;</a>
+            </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="relative overflow-hidden rounded-2xl bg-white/60 backdrop-blur-xl border border-white/50 shadow-lg p-6 group transition-all hover:bg-white/70">
+            <div class="absolute right-4 top-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                <i class="bi bi-people text-6xl text-blue-600"></i>
+            </div>
+            <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Total Membres</p>
+             <p class="text-3xl font-bold text-slate-800 mt-2">@ViewData["TotalMembers"]</p>
+            <div class="mt-4 flex items-center text-sm font-medium text-blue-600">
+                <a asp-controller="Membres" asp-action="Index" class="hover:underline">Gérer les membres &rarr;</a>
+            </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="relative overflow-hidden rounded-2xl bg-white/60 backdrop-blur-xl border border-white/50 shadow-lg p-6 group transition-all hover:bg-white/70">
+            <div class="absolute right-4 top-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                <i class="bi bi-journal-bookmark text-6xl text-amber-600"></i>
+            </div>
+             <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Emprunts & Réservations</p>
+            <div class="mt-2 flex gap-4">
+                <div>
+                     <span class="block text-2xl font-bold text-slate-800">@ViewData["ActiveLoans"]</span>
+                     <span class="text-xs text-slate-500">Actifs</span>
+                </div>
+                <div class="border-l border-slate-300 pl-4">
+                     <span class="block text-2xl font-bold text-red-600">@ViewData["LateLoans"]</span>
+                     <span class="text-xs text-red-500">En retard</span>
+                </div>
+                 <div class="border-l border-slate-300 pl-4">
+                     <span class="block text-2xl font-bold text-amber-600">@ViewData["TotalReservations"]</span>
+                     <span class="text-xs text-amber-600">Réservés</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Chart 1 -->
+        <div class="rounded-2xl bg-white/60 backdrop-blur-xl border border-white/50 shadow-lg p-6">
+            <h5 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+                <i class="bi bi-pie-chart text-brand-500"></i> Livres par Auteur
+            </h5>
+            <div class="relative h-64">
+                <canvas id="booksByAuthorChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Chart 2 -->
+        <div class="rounded-2xl bg-white/60 backdrop-blur-xl border border-white/50 shadow-lg p-6">
+             <h5 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+                <i class="bi bi-bar-chart text-blue-500"></i> Emprunts par Mois
+            </h5>
+            <div class="relative h-64">
+                <canvas id="loansPerMonthChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        // Chart defaults for better styling
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.color = '#64748b';
+        Chart.defaults.scale.grid.color = 'rgba(255, 255, 255, 0.2)';
+
+        var authors = @Html.Raw(Json.Serialize(ViewData["Authors"]));
+        var booksByAuthor = @Html.Raw(Json.Serialize(ViewData["BooksByAuthor"]));
+
+        var booksByAuthorCtx = document.getElementById('booksByAuthorChart').getContext('2d');
+        var booksByAuthorChart = new Chart(booksByAuthorCtx, {
+            type: 'doughnut', // Changed to doughnut for modern look
+            data: {
+                labels: authors,
+                datasets: [{
+                    label: 'Nombre de Livres',
+                    data: booksByAuthor,
+                    backgroundColor: [
+                        'rgba(99, 102, 241, 0.8)', // Brand
+                        'rgba(59, 130, 246, 0.8)', // Blue
+                        'rgba(168, 85, 247, 0.8)', // Purple
+                        'rgba(236, 72, 153, 0.8)', // Pink
+                        'rgba(249, 115, 22, 0.8)', // Orange
+                        'rgba(34, 197, 94, 0.8)'   // Green
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            usePointStyle: true,
+                            boxWidth: 8
+                        }
+                    }
+                },
+                cutout: '60%'
+            }
+        });
+
+        var loanMonths = @Html.Raw(Json.Serialize(ViewData["LoanMonths"]));
+        var loansPerMonth = @Html.Raw(Json.Serialize(ViewData["LoansPerMonth"]));
+
+        var loansPerMonthCtx = document.getElementById('loansPerMonthChart').getContext('2d');
+        const gradient = loansPerMonthCtx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(99, 102, 241, 0.8)');
+        gradient.addColorStop(1, 'rgba(99, 102, 241, 0.2)');
+
+        var loansPerMonthChart = new Chart(loansPerMonthCtx, {
+            type: 'bar',
+            data: {
+                labels: loanMonths,
+                datasets: [{
+                    label: 'Nombre d\'Emprunts',
+                    data: loansPerMonth,
+                    backgroundColor: gradient,
+                    borderRadius: 6,
+                    borderSkipped: false,
+                    barThickness: 20
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                             color: 'rgba(0, 0, 0, 0.05)',
+                             drawBorder: false
+                        },
+                         border: {
+                            display: false
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                         border: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}

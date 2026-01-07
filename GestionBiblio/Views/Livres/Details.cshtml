@@ -1,0 +1,112 @@
+﻿@model GestionBiblio.Models.Livre
+
+@{
+    ViewData["Title"] = "Détails du Livre";
+}
+
+<div class="max-w-5xl mx-auto py-6">
+    <!-- Breadcrumb simple -->
+    <nav class="flex mb-6 text-sm text-slate-700 bg-white/40 p-3 rounded-lg backdrop-blur-sm w-fit shadow-sm border border-white/30">
+        <a asp-action="Index" class="hover:text-brand-700 font-medium">Catalogue</a>
+        <span class="mx-2 text-slate-500">/</span>
+        <span class="text-slate-900 font-bold">@Model.Titre</span>
+    </nav>
+
+    <div class="bg-white/70 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/50 overflow-hidden">
+        <div class="grid grid-cols-1 md:grid-cols-3">
+            <!-- Image Section -->
+            <div class="relative aspect-[2/3] md:aspect-auto bg-slate-100">
+                <img src="@Model.GetImageUrl()" alt="@Model.Titre" class="absolute inset-0 h-full w-full object-cover" />
+                 @if (Model.NombreExemplaires > 0)
+                {
+                    <div class="absolute top-4 left-4">
+                        <span class="inline-flex items-center rounded-full bg-green-100/90 backdrop-blur-md px-3 py-1 text-sm font-bold text-green-800 shadow-sm border border-green-200">
+                             <i class="bi bi-check-circle-fill mr-1.5"></i> Disponible
+                        </span>
+                    </div>
+                }
+                else
+                {
+                    <div class="absolute top-4 left-4">
+                        <span class="inline-flex items-center rounded-full bg-red-100/90 backdrop-blur-md px-3 py-1 text-sm font-bold text-red-800 shadow-sm border border-red-200">
+                             <i class="bi bi-x-circle-fill mr-1.5"></i> Indisponible
+                        </span>
+                    </div>
+                }
+            </div>
+
+            <!-- Content Section -->
+            <div class="col-span-1 md:col-span-2 p-8 md:p-10 flex flex-col h-full">
+                <div class="flex-1">
+                    <div class="flex justify-between items-start">
+                         <div>
+                            <h1 class="text-4xl font-extrabold text-slate-900 leading-tight">@Model.Titre</h1>
+                            <p class="mt-3 text-2xl text-slate-600">par <span class="text-slate-900 font-semibold">@Model.Auteur</span></p>
+                        </div>
+                        @if (Model.Categorie != null)
+                        {
+                            <span class="inline-flex items-center rounded-lg bg-white/80 backdrop-blur-md px-3 py-1.5 text-sm font-semibold text-slate-700 shadow-sm border border-slate-200/50">
+                                @Model.Categorie.Nom
+                            </span>
+                        }
+                    </div>
+
+                    <div class="mt-10 border-t border-slate-200/60 pt-8">
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500">Détails techniques</h3>
+                        <dl class="mt-4 grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                            <div class="group">
+                                <dt class="font-medium text-slate-500 text-sm">ISBN</dt>
+                                <dd class="mt-1 text-base font-semibold text-slate-900">@Model.ISBN</dd>
+                            </div>
+                            <div class="group">
+                                <dt class="font-medium text-slate-500 text-sm">Année de publication</dt>
+                                <dd class="mt-1 text-base font-semibold text-slate-900">@Model.AnneePublication</dd>
+                            </div>
+                            <div class="group">
+                                <dt class="font-medium text-slate-500 text-sm">Disponibilité</dt>
+                                <dd class="mt-1 text-base font-semibold text-slate-900">@Model.NombreExemplaires exemplaire(s) en stock</dd>
+                            </div>
+                            @if (Model.Categorie != null) {
+                                <div class="group">
+                                    <dt class="font-medium text-slate-500 text-sm">Rayon</dt>
+                                    <dd class="mt-1 text-base font-semibold text-slate-900">@Model.Categorie.Nom</dd>
+                                </div>
+                            }
+                        </dl>
+                    </div>
+                </div>
+
+                <!-- Actions Footer -->
+                <div class="mt-10 pt-8 border-t border-slate-200/60 flex flex-col sm:flex-row gap-4">
+                    @if (Model.NombreExemplaires > 0)
+                    {
+                        <form asp-controller="Emprunts" asp-action="CreateAutomated" asp-route-livreId="@Model.Id" method="post" class="flex-1">
+                            <button type="submit" class="w-full inline-flex items-center justify-center rounded-xl bg-brand-600 px-6 py-4 text-lg font-bold text-white shadow-lg hover:bg-brand-500 hover:shadow-xl hover:-translate-y-0.5 transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600">
+                                <i class="bi bi-journal-plus mr-2"></i> Emprunter ce livre
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a asp-controller="Reservations" asp-action="Create" asp-route-livreId="@Model.Id" class="flex-1 inline-flex items-center justify-center rounded-xl bg-amber-500 px-6 py-4 text-lg font-bold text-white shadow-lg hover:bg-amber-400 hover:shadow-xl hover:-translate-y-0.5 transition-all">
+                            <i class="bi bi-clock-history mr-2"></i> Réserver pour plus tard
+                        </a>
+                    }
+                </div>
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <div class="mt-6 flex items-center justify-center gap-4 text-sm bg-slate-50/50 p-2 rounded-lg mx-auto w-fit">
+                        <a asp-action="Edit" asp-route-id="@Model?.Id" class="text-brand-600 hover:text-brand-500 font-bold px-3 py-1 hover:bg-white/50 rounded-md transition-colors">
+                            <i class="bi bi-pencil mr-1"></i> Modifier
+                        </a>
+                        <span class="text-slate-300">|</span>
+                        <a asp-action="Delete" asp-route-id="@Model?.Id" class="text-red-600 hover:text-red-500 font-bold px-3 py-1 hover:bg-white/50 rounded-md transition-colors">
+                            <i class="bi bi-trash mr-1"></i> Supprimer
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,58 @@
+﻿@model GestionBiblio.Models.Emprunt
+
+@{
+    ViewData["Title"] = "Créer un Emprunt";
+}
+
+<div class="max-w-xl mx-auto space-y-8">
+    <div class="text-center">
+        <h1 class="text-3xl font-bold tracking-tight text-slate-900">Nouvel Emprunt</h1>
+        <p class="mt-2 text-slate-600">Enregistrer un prêt de livre.</p>
+    </div>
+
+    <div class="bg-white/60 backdrop-blur-xl border border-white/50 rounded-2xl shadow-xl p-8">
+        <form asp-action="Create" method="post" class="space-y-6">
+            <div asp-validation-summary="ModelOnly" class="text-red-500 text-sm text-center"></div>
+            
+            <div>
+                <label asp-for="LivreId" class="block text-sm font-medium text-slate-700 mb-1">Livre</label>
+                <select asp-for="LivreId" class="block w-full rounded-xl border-0 bg-white/50 py-2.5 px-3 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-500 sm:text-sm" asp-items="ViewBag.LivreId"></select>
+            </div>
+
+            <div>
+                 <label asp-for="MembreId" class="block text-sm font-medium text-slate-700 mb-1">Membre</label>
+                 @if (ViewData["MembreIdReadOnly"] != null && (bool)ViewData["MembreIdReadOnly"])
+                 {
+                    <select asp-for="MembreId" class="block w-full rounded-xl border-0 bg-slate-100/50 py-2.5 px-3 shadow-sm ring-1 ring-inset ring-slate-300 text-slate-500 sm:text-sm cursor-not-allowed" asp-items="ViewBag.MembreId" disabled></select>
+                    <input type="hidden" asp-for="MembreId" />
+                 }
+                 else
+                 {
+                    <select asp-for="MembreId" class="block w-full rounded-xl border-0 bg-white/50 py-2.5 px-3 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-500 sm:text-sm" asp-items="ViewBag.MembreId"></select>
+                 }
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label asp-for="DateEmprunt" class="block text-sm font-medium text-slate-700 mb-1"></label>
+                    <input asp-for="DateEmprunt" class="block w-full rounded-xl border-0 bg-white/50 py-2.5 px-3 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-500 sm:text-sm" />
+                    <span asp-validation-for="DateEmprunt" class="text-xs text-red-500"></span>
+                </div>
+                <div>
+                   <label asp-for="DateRetourPrevue" class="block text-sm font-medium text-slate-700 mb-1"></label>
+                   <input asp-for="DateRetourPrevue" class="block w-full rounded-xl border-0 bg-white/50 py-2.5 px-3 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-500 sm:text-sm" />
+                   <span asp-validation-for="DateRetourPrevue" class="text-xs text-red-500"></span>
+                </div>
+            </div>
+
+            <div class="pt-4 flex items-center justify-end gap-4">
+                <a asp-action="Index" class="text-sm font-semibold text-slate-900 hover:text-brand-600">Annuler</a>
+                <button type="submit" class="rounded-xl bg-brand-600 px-8 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-500 transition-all">Créer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

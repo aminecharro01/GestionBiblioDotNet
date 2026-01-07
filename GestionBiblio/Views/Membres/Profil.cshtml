@@ -1,0 +1,172 @@
+@model GestionBiblio.Models.Membre
+
+@{
+    ViewData["Title"] = "Mon Profil";
+}
+
+<div class="max-w-4xl mx-auto space-y-8">
+    
+    <!-- Header Profil -->
+    <div class="bg-white/70 backdrop-blur-xl rounded-xl shadow-xl border border-white/50 p-6 flex flex-col sm:flex-row items-center sm:items-start gap-6">
+        <div class="h-20 w-20 rounded-full bg-brand-100/80 flex items-center justify-center text-brand-600 text-3xl font-bold backdrop-blur-sm shadow-inner">
+            @(string.IsNullOrEmpty(Model.FullName) ? "?" : Model.FullName[0].ToString().ToUpper())
+        </div>
+        <div class="flex-1 text-center sm:text-left">
+            <h1 class="text-2xl font-bold text-slate-900">@Model.FullName</h1>
+            <p class="text-slate-600 font-medium">Membre depuis le @Model.DateAdhesion.ToString("dd MMMM yyyy")</p>
+            <div class="mt-4 flex flex-wrap justify-center sm:justify-start gap-3">
+                 <div class="inline-flex items-center rounded-md bg-white/50 px-2 py-1 text-sm font-medium text-slate-700 ring-1 ring-inset ring-slate-900/10 backdrop-blur-sm">
+                    <i class="bi bi-envelope mr-2"></i> @Model.Email
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Historique des Emprunts -->
+    <div class="bg-white/70 backdrop-blur-xl rounded-xl shadow-xl border border-white/50 overflow-hidden">
+        <div class="p-6 border-b border-white/30 bg-white/30 flex items-center justify-between">
+            <h2 class="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                <i class="bi bi-journal-text text-brand-600"></i> Historique des Emprunts
+            </h2>
+            <span class="inline-flex items-center rounded-full bg-white/60 px-2.5 py-0.5 text-xs font-medium text-slate-700 shadow-sm">@Model.Emprunts.Count</span>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left text-slate-600">
+                <thead class="text-xs text-slate-800 uppercase bg-white/40 border-b border-white/30">
+                    <tr>
+                        <th class="px-6 py-3 font-medium">Livre</th>
+                        <th class="px-6 py-3 font-medium">Emprunté le</th>
+                        <th class="px-6 py-3 font-medium">Retour prévu</th>
+                        <th class="px-6 py-3 font-medium">État</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/30">
+                    @foreach (var emprunt in Model.Emprunts.OrderByDescending(e => e.DateEmprunt))
+                    {
+                        <tr class="hover:bg-white/40 transition-colors">
+                            <td class="px-6 py-4 font-bold text-slate-900">@emprunt.Livre.Titre</td>
+                            <td class="px-6 py-4">@emprunt.DateEmprunt.ToString("dd/MM/yyyy")</td>
+                            <td class="px-6 py-4">@emprunt.DateRetourPrevue.ToString("dd/MM/yyyy")</td>
+                            <td class="px-6 py-4">
+                                @if (emprunt.IsLate)
+                                {
+                                    <span class="inline-flex items-center rounded-full bg-red-100/80 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20 backdrop-blur-sm">En Retard</span>
+                                }
+                                else if (emprunt.IsReturned)
+                                {
+                                    <span class="inline-flex items-center rounded-full bg-slate-100/80 px-2 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-500/20 backdrop-blur-sm">Retourné</span>
+                                }
+                                else
+                                {
+                                    <span class="inline-flex items-center rounded-full bg-green-100/80 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20 backdrop-blur-sm">En Cours</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            @if (!Model.Emprunts.Any()) {
+                <div class="p-8 text-center text-slate-500">Aucun historique d'emprunt.</div>
+            }
+        </div>
+    </div>
+
+    <!-- Historique des Amendes -->
+    <div class="bg-white/70 backdrop-blur-xl rounded-xl shadow-xl border border-white/50 overflow-hidden">
+        <div class="p-6 border-b border-white/30 bg-white/30 flex items-center justify-between">
+            <h2 class="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                <i class="bi bi-cash-coin text-amber-600"></i> Historique des Amendes
+            </h2>
+        </div>
+        
+        @if(Model.Emprunts.Any(e => e.Amendes.Any())) {
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-slate-600">
+                    <thead class="text-xs text-slate-800 uppercase bg-white/40 border-b border-white/30">
+                        <tr>
+                            <th class="px-6 py-3 font-medium">Livre Concerné</th>
+                            <th class="px-6 py-3 font-medium">Montant</th>
+                            <th class="px-6 py-3 font-medium">Date</th>
+                            <th class="px-6 py-3 font-medium">Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/30">
+                        @foreach (var emprunt in Model.Emprunts)
+                        {
+                            @foreach (var amende in emprunt.Amendes)
+                            {
+                                <tr class="hover:bg-white/40 transition-colors">
+                                    <td class="px-6 py-4 text-slate-900 font-medium">@emprunt.Livre.Titre</td>
+                                    <td class="px-6 py-4 font-bold text-slate-900">@amende.Montant.ToString("C")</td>
+                                    <td class="px-6 py-4">@amende.DateCreation.ToString("dd/MM/yyyy")</td>
+                                    <td class="px-6 py-4">
+                                        @if (amende.EstPaye)
+                                        {
+                                            <span class="inline-flex items-center rounded-full bg-green-100/80 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20 backdrop-blur-sm">Payée</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="inline-flex items-center rounded-full bg-red-100/80 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20 backdrop-blur-sm">Non Payée</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        } else {
+            <div class="p-8 text-center text-slate-500">Aucune amende enregistrée.</div>
+        }
+    </div>
+
+    <!-- Mes Réservations -->
+    <div class="bg-white/70 backdrop-blur-xl rounded-xl shadow-xl border border-white/50 overflow-hidden">
+        <div class="p-6 border-b border-white/30 bg-white/30 flex items-center justify-between">
+            <h2 class="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                <i class="bi bi-bookmark-fill text-brand-600"></i> Mes Réservations
+            </h2>
+             @if(Model.Reservations.Any()) {
+                 <span class="inline-flex items-center rounded-full bg-white/60 px-2.5 py-0.5 text-xs font-medium text-slate-700 shadow-sm">@Model.Reservations.Count</span>
+             }
+        </div>
+         
+        @if(Model.Reservations.Any()) {
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-slate-600">
+                    <thead class="text-xs text-slate-800 uppercase bg-white/40 border-b border-white/30">
+                         <tr>
+                            <th class="px-6 py-3 font-medium">Livre</th>
+                            <th class="px-6 py-3 font-medium">Date de demande</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/30">
+                         @foreach (var reservation in Model.Reservations)
+                        {
+                            <tr class="hover:bg-white/40 transition-colors">
+                                <td class="px-6 py-4 font-bold text-slate-900">@reservation.Livre.Titre</td>
+                                <td class="px-6 py-4">@reservation.DateReservation.ToString("dd/MM/yyyy")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        } else {
+             <div class="p-8 text-center text-slate-500">Aucune réservation en cours.</div>
+        }
+    </div>
+
+    <div class="flex justify-center sm:justify-start">
+        @if (User.IsInRole("Admin"))
+        {
+            <a asp-action="Index" class="text-sm font-semibold text-white hover:text-brand-100 backdrop-blur-sm px-4 py-2 rounded-lg bg-black/20 hover:bg-black/30 transition-all">Retour à la Liste</a>
+        }
+        else
+        {
+            <a asp-controller="Home" asp-action="Index" class="inline-flex items-center justify-center rounded-lg bg-white/80 px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-white transition-all backdrop-blur-sm">
+                <i class="bi bi-arrow-left mr-2"></i> Retour à l'Accueil
+            </a>
+        }
+    </div>
+</div>

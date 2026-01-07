@@ -1,0 +1,78 @@
+﻿@model GestionBiblio.Models.Emprunt
+
+@{
+    ViewData["Title"] = "Modifier l'Emprunt";
+}
+
+<div class="max-w-xl mx-auto space-y-8">
+    
+    @if (User.IsInRole("Admin"))
+    {
+        <div class="text-center">
+            <h1 class="text-3xl font-bold tracking-tight text-slate-900">Modifier Emprunt</h1>
+            <p class="mt-2 text-slate-600">Mettre à jour les informations du prêt.</p>
+        </div>
+
+        <div class="bg-white/60 backdrop-blur-xl border border-white/50 rounded-2xl shadow-xl p-8">
+            <form asp-action="Edit" class="space-y-6">
+                <div asp-validation-summary="ModelOnly" class="text-red-500 text-sm text-center"></div>
+                <input type="hidden" asp-for="Id" />
+                
+                <div>
+                    <label asp-for="LivreId" class="block text-sm font-medium text-slate-700 mb-1">Livre</label>
+                    <select asp-for="LivreId" class="block w-full rounded-xl border-0 bg-white/50 py-2.5 px-3 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-500 sm:text-sm" asp-items="ViewBag.LivreId"></select>
+                    <span asp-validation-for="LivreId" class="text-xs text-red-500"></span>
+                </div>
+
+                <div>
+                    <label asp-for="MembreId" class="block text-sm font-medium text-slate-700 mb-1">Membre</label>
+                    <select asp-for="MembreId" class="block w-full rounded-xl border-0 bg-white/50 py-2.5 px-3 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-500 sm:text-sm" asp-items="ViewBag.MembreId"></select>
+                    <span asp-validation-for="MembreId" class="text-xs text-red-500"></span>
+                </div>
+
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label asp-for="DateEmprunt" class="block text-sm font-medium text-slate-700 mb-1"></label>
+                        <input asp-for="DateEmprunt" class="block w-full rounded-xl border-0 bg-white/50 py-2.5 px-3 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-500 sm:text-sm" />
+                        <span asp-validation-for="DateEmprunt" class="text-xs text-red-500"></span>
+                    </div>
+                    <div>
+                        <label asp-for="DateRetourPrevue" class="block text-sm font-medium text-slate-700 mb-1"></label>
+                        <input asp-for="DateRetourPrevue" class="block w-full rounded-xl border-0 bg-white/50 py-2.5 px-3 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-500 sm:text-sm" />
+                        <span asp-validation-for="DateRetourPrevue" class="text-xs text-red-500"></span>
+                    </div>
+                </div>
+
+                <div>
+                    <label asp-for="DateRetourEffective" class="block text-sm font-medium text-slate-700 mb-1"></label>
+                    <input asp-for="DateRetourEffective" class="block w-full rounded-xl border-0 bg-white/50 py-2.5 px-3 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-500 sm:text-sm" />
+                    <span asp-validation-for="DateRetourEffective" class="text-xs text-red-500"></span>
+                </div>
+
+                <div class="pt-4 flex items-center justify-end gap-4">
+                    <a asp-action="Index" class="text-sm font-semibold text-slate-900 hover:text-brand-600">Annuler</a>
+                    <button type="submit" class="rounded-xl bg-brand-600 px-8 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-500 transition-all">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    }
+    else
+    {
+         <div class="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+            <div class="flex justify-center mb-4">
+                <div class="h-12 w-12 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                    <i class="bi bi-shield-lock-fill text-2xl"></i>
+                </div>
+            </div>
+            <h3 class="text-lg font-bold text-red-800">Accès Refusé</h3>
+            <p class="text-red-700 mt-2">Vous n'êtes pas autorisé à modifier des emprunts.</p>
+            <div class="mt-6">
+                <a asp-action="Index" class="text-sm font-semibold text-red-700 hover:text-red-800 underline">Retour à la liste</a>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

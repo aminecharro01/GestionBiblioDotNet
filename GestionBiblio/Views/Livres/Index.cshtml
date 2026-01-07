@@ -1,0 +1,130 @@
+﻿@model IEnumerable<GestionBiblio.Models.Livre>
+
+@{
+    ViewData["Title"] = "Catalogue des Livres";
+}
+
+<div class="space-y-6">
+    <!-- Header + Actions -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/60 p-6 rounded-2xl backdrop-blur-xl border border-white/50 shadow-lg">
+        <h1 class="text-3xl font-bold tracking-tight text-slate-900">Catalogue</h1>
+        <div class="flex gap-2">
+            @if (User.IsInRole("Admin"))
+            {
+                <a asp-action="Create" class="inline-flex items-center justify-center rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-500 transition-colors">
+                    <i class="bi bi-plus-lg mr-2"></i> Nouveau Livre
+                </a>
+                <a asp-action="ExportToCsv" class="inline-flex items-center justify-center rounded-lg bg-white/80 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-white transition-colors backdrop-blur-sm">
+                    <i class="bi bi-download mr-2"></i> Export CSV
+                </a>
+            }
+        </div>
+    </div>
+
+    <!-- Barre de recherche -->
+    <div class="bg-white/70 rounded-2xl shadow-xl border border-white/50 p-6 backdrop-blur-xl">
+        <form asp-action="Index" method="get" class="flex flex-col sm:flex-row gap-3">
+            <div class="relative flex-grow">
+                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                    <i class="bi bi-search text-slate-500"></i>
+                </div>
+                <input type="text" name="searchString" class="block w-full rounded-xl border-0 py-3 pl-10 text-slate-900 ring-1 ring-inset ring-slate-300 placeholder:text-slate-500 focus:ring-2 focus:ring-inset focus:ring-brand-600 sm:text-sm sm:leading-6 bg-white/80 backdrop-blur-sm" placeholder="Rechercher par titre, auteur ou ISBN..." value="@ViewBag.SearchString" />
+            </div>
+            <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-slate-800 transition-colors">
+                Rechercher
+            </button>
+        </form>
+    </div>
+
+    <!-- Grille de cartes -->
+    @if (Model.Any())
+    {
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            @foreach (var item in Model)
+            {
+                <div class="group relative bg-white/70 rounded-2xl shadow-lg border border-white/50 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 backdrop-blur-md">
+                    <div class="relative aspect-[2/3] overflow-hidden bg-slate-200">
+                        <img src="@item.GetImageUrl()" alt="@item.Titre" class="h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-in-out cursor-pointer" onclick="window.location.href='@Url.Action("Details", new { id = item.Id })'" />
+                        <div class="absolute top-2 right-2">
+                            @if (item.NombreExemplaires > 0)
+                            {
+                                <span class="inline-flex items-center rounded-full bg-green-100/90 backdrop-blur-sm px-2 py-1 text-xs font-bold text-green-800 shadow-sm border border-green-200">
+                                    <span class="mr-1 h-1.5 w-1.5 rounded-full bg-green-600"></span> Dispo
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="inline-flex items-center rounded-full bg-red-100/90 backdrop-blur-sm px-2 py-1 text-xs font-bold text-red-800 shadow-sm border border-red-200">
+                                    Indisponible
+                                </span>
+                            }
+                        </div>
+                         @if (item.Categorie != null)
+                        {
+                            <div class="absolute bottom-2 left-2">
+                                <span class="inline-flex items-center rounded-lg bg-white/90 backdrop-blur-md px-2 py-1 text-xs font-semibold text-slate-700 shadow-sm">
+                                    @item.Categorie.Nom
+                                </span>
+                            </div>
+                        }
+                    </div>
+                    <div class="p-5 flex flex-col h-auto">
+                        <h3 class="text-lg font-bold text-slate-900 group-hover:text-brand-600 transition-colors truncate" title="@item.Titre">
+                             <a asp-action="Details" asp-route-id="@item.Id">
+                                <span aria-hidden="true" class="absolute inset-0"></span>
+                                @item.Titre
+                            </a>
+                        </h3>
+                        <p class="mt-1 text-sm text-slate-600 truncate font-medium">@item.Auteur</p>
+                        <p class="mt-1 text-xs text-slate-500">@item.AnneePublication • ISBN @item.ISBN</p>
+                        
+                        <div class="mt-4 pt-4 border-t border-slate-200/60 flex items-center gap-2 relative z-10">
+                            @if (item.NombreExemplaires > 0)
+                            {
+                                <form asp-controller="Emprunts" asp-action="CreateAutomated" asp-route-livreId="@item.Id" method="post" class="flex-1">
+                                    <button type="submit" class="w-full inline-flex items-center justify-center rounded-lg bg-brand-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-500 transition-colors">
+                                        Emprunter
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <a asp-controller="Reservations" asp-action="Create" asp-route-livreId="@item.Id" class="flex-1 inline-flex items-center justify-center rounded-lg bg-amber-500/90 backdrop-blur-sm px-3 py-2 text-sm font-semibold text-white hover:bg-amber-500 transition-colors">
+                                    Réserver
+                                </a>
+                            }
+                            
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <div class="flex gap-1">
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="p-2 text-slate-400 hover:text-amber-600 transition-colors" title="Modifier">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.Id" class="p-2 text-slate-400 hover:text-red-600 transition-colors" title="Supprimer">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-16 bg-white/60 rounded-2xl border border-dashed border-slate-300 backdrop-blur-sm">
+            <i class="bi bi-search text-slate-400 text-5xl mb-4 block"></i>
+            <h3 class="mt-2 text-lg font-semibold text-slate-900">Aucun résultat</h3>
+            <p class="mt-1 text-slate-600">Essayez de modifier votre recherche ou effacez les filtres.</p>
+            @if (User.IsInRole("Admin"))
+            {
+                <div class="mt-6">
+                    <a asp-action="Create" class="inline-flex items-center rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-500">
+                        <i class="bi bi-plus-lg mr-2"></i> Ajouter un livre
+                    </a>
+                </div>
+            }
+        </div>
+    }
+</div>

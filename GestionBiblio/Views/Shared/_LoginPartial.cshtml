@@ -1,0 +1,37 @@
+@using Microsoft.AspNetCore.Identity
+
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+<div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
+@if (SignInManager.IsSignedIn(User))
+{
+    <div>
+        <a class="block rounded-md px-3 py-2 text-sm font-medium text-slate-700 hover:bg-brand-50 hover:text-brand-600" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
+            <i class="bi bi-person-circle"></i> @User.Identity.Name
+        </a>
+    </div>
+    @if (!User.IsInRole("Admin"))
+    {
+        <div>
+            <a class="block rounded-md px-3 py-2 text-sm font-medium text-slate-700 hover:bg-brand-50 hover:text-brand-600" asp-area="" asp-controller="Membres" asp-action="Profil">Mon Profil</a>
+        </div>
+    }
+    <div>
+        <form class="m-0 p-0" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+            <button type="submit" class="w-full text-left md:w-auto block rounded-md px-3 py-2 text-sm font-medium text-slate-700 hover:bg-red-50 hover:text-red-600 transition">
+                <i class="bi bi-box-arrow-right"></i> Déconnexion
+            </button>
+        </form>
+    </div>
+}
+else
+{
+    <div>
+        <a class="block rounded-md px-3 py-2 text-sm font-medium text-slate-700 hover:bg-brand-50 hover:text-brand-600" asp-area="Identity" asp-page="/Account/Register">S'inscrire</a>
+    </div>
+    <div>
+        <a class="block rounded-md px-3 py-2 text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 shadow-sm transition" asp-area="Identity" asp-page="/Account/Login">Se connecter</a>
+    </div>
+}
+</div>

@@ -1,0 +1,64 @@
+﻿@model GestionBiblio.Models.Membre
+
+@{
+    ViewData["Title"] = "Modifier le Membre";
+}
+
+<div class="max-w-xl mx-auto space-y-8">
+    <div class="text-center">
+        <h1 class="text-3xl font-bold tracking-tight text-slate-900">Modifier Membre</h1>
+        <p class="mt-2 text-slate-600">Mettre à jour les informations de @Model.FullName</p>
+    </div>
+
+    <div class="bg-white/60 backdrop-blur-xl border border-white/50 rounded-2xl shadow-xl p-8">
+        @if (User.IsInRole("Admin"))
+        {
+            <form asp-action="Edit" class="space-y-6">
+                <div asp-validation-summary="ModelOnly" class="text-red-500 text-sm text-center"></div>
+                <input type="hidden" asp-for="Id" />
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label asp-for="Nom" class="block text-sm font-medium text-slate-700 mb-1"></label>
+                        <input asp-for="Nom" class="block w-full rounded-xl border-0 bg-white/50 py-2.5 px-3 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-500 sm:text-sm" />
+                        <span asp-validation-for="Nom" class="text-xs text-red-500"></span>
+                    </div>
+                    <div>
+                        <label asp-for="Prenom" class="block text-sm font-medium text-slate-700 mb-1"></label>
+                        <input asp-for="Prenom" class="block w-full rounded-xl border-0 bg-white/50 py-2.5 px-3 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-500 sm:text-sm" />
+                        <span asp-validation-for="Prenom" class="text-xs text-red-500"></span>
+                    </div>
+                </div>
+
+                <div>
+                    <label asp-for="Email" class="block text-sm font-medium text-slate-700 mb-1"></label>
+                    <input asp-for="Email" class="block w-full rounded-xl border-0 bg-white/50 py-2.5 px-3 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-500 sm:text-sm" />
+                    <span asp-validation-for="Email" class="text-xs text-red-500"></span>
+                </div>
+
+                <div>
+                    <label asp-for="DateAdhesion" class="block text-sm font-medium text-slate-700 mb-1"></label>
+                    <input asp-for="DateAdhesion" class="block w-full rounded-xl border-0 bg-white/50 py-2.5 px-3 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-500 sm:text-sm" />
+                    <span asp-validation-for="DateAdhesion" class="text-xs text-red-500"></span>
+                </div>
+
+                <div class="pt-4 flex items-center justify-end gap-4">
+                    <a asp-action="Index" class="text-sm font-semibold text-slate-900 hover:text-brand-600">Annuler</a>
+                    <button type="submit" class="rounded-xl bg-brand-600 px-8 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-500 transition-all">Enregistrer</button>
+                </div>
+            </form>
+        }
+        else
+        {
+             <div class="text-center p-4">
+                <i class="bi bi-shield-lock text-4xl text-slate-400"></i>
+                <p class="mt-2 text-slate-600">Accès réservé aux administrateurs.</p>
+                <a asp-action="Index" class="mt-4 inline-block text-brand-600 font-medium">Retour</a>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

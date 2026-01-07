@@ -1,0 +1,53 @@
+@model GestionBiblio.Models.Reservation
+
+@{
+    ViewData["Title"] = "Détails";
+}
+
+<div class="flex min-h-[60vh] items-center justify-center p-4">
+    <div class="w-full max-w-2xl">
+        <!-- Glass Card -->
+        <div class="relative overflow-hidden rounded-2xl bg-white/60 backdrop-blur-xl border border-white/50 shadow-2xl p-8">
+            <div class="absolute top-0 left-0 w-full h-1 bg-brand-500"></div>
+            
+            <div class="flex items-center gap-6 mb-8">
+                <div class="flex h-20 w-20 items-center justify-center rounded-full bg-brand-100 text-brand-600 shadow-md">
+                    <i class="bi bi-bookmark-check text-4xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800">Détails Réservation</h1>
+                    <p class="text-slate-500">Informations complètes</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 bg-white/40 rounded-xl p-6 border border-white/40">
+                <div>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Livre réservé</p>
+                    <p class="text-lg font-medium text-slate-900">@Model.Livre.Titre</p>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                         <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Membre</p>
+                        <p class="text-base font-medium text-slate-800">@Model.Membre.FullName</p>
+                    </div>
+                    <div>
+                         <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Date</p>
+                        <p class="text-base font-medium text-slate-800">@Model.DateReservation.ToString("dd MMMM yyyy")</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 flex items-center justify-end gap-4">
+                <a asp-action="Index" class="rounded-xl px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-white/50 transition-colors">
+                    Retour
+                </a>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="rounded-xl bg-brand-600 px-6 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-500 transition-all">
+                        Modifier
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,243 @@
+@model GestionBiblio.ViewModels.MemberDashboardViewModel
+@using GestionBiblio.Models
+
+@{
+    ViewData["Title"] = "Tableau de Bord";
+}
+
+<div class="space-y-8">
+    
+    <!-- Welcome Section (Glass) -->
+    <div class="relative overflow-hidden rounded-2xl bg-white/60 backdrop-blur-xl border border-white/50 shadow-xl p-8">
+        <div class="relative z-10">
+            <h1 class="text-3xl font-bold text-slate-800">
+                Bonjour, <span class="text-brand-600">@Model.Member?.FullName</span> !
+            </h1>
+            <p class="mt-2 text-lg text-slate-600">
+                Ravi de vous revoir. Voici ce qui se passe dans votre bibliothèque aujourd'hui.
+            </p>
+        </div>
+        <div class="absolute -right-10 -top-10 h-64 w-64 rounded-full bg-brand-400/20 blur-3xl"></div>
+        <div class="absolute -left-10 -bottom-10 h-64 w-64 rounded-full bg-amber-400/20 blur-3xl"></div>
+    </div>
+
+    <!-- Quick Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Active Loans -->
+        <div class="rounded-xl bg-white/70 backdrop-blur-md border border-white/50 p-6 shadow-lg hover:transform hover:scale-105 transition-all duration-300">
+            <div class="flex items-center gap-4">
+                <div class="rounded-full bg-blue-100/80 p-3 text-blue-600">
+                    <i class="bi bi-book text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-slate-600">Emprunts actifs</p>
+                    <p class="text-2xl font-bold text-slate-800">@Model.ActiveLoansCount</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Late Loans -->
+        <div class="rounded-xl bg-white/70 backdrop-blur-md border border-white/50 p-6 shadow-lg hover:transform hover:scale-105 transition-all duration-300">
+            <div class="flex items-center gap-4">
+               <div class="rounded-full bg-red-100/80 p-3 text-red-600">
+                    <i class="bi bi-exclamation-circle text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-slate-600">Retards</p>
+                    <p class="text-2xl font-bold text-red-600">@Model.LateLoansCount</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reservations -->
+        <div class="rounded-xl bg-white/70 backdrop-blur-md border border-white/50 p-6 shadow-lg hover:transform hover:scale-105 transition-all duration-300">
+            <div class="flex items-center gap-4">
+                <div class="rounded-full bg-amber-100/80 p-3 text-amber-600">
+                    <i class="bi bi-bookmark text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-slate-600">Réservations</p>
+                    <p class="text-2xl font-bold text-slate-800">@Model.ReservationsCount</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fines -->
+        <div class="rounded-xl bg-white/70 backdrop-blur-md border border-white/50 p-6 shadow-lg hover:transform hover:scale-105 transition-all duration-300">
+            <div class="flex items-center gap-4">
+                <div class="rounded-full bg-slate-100/80 p-3 text-slate-600">
+                    <i class="bi bi-cash-coin text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-slate-600">Amendes impayées</p>
+                    <p class="text-2xl font-bold text-slate-800">@Model.UnpaidFinesCount</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Column: Books -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Available Books -->
+            <div class="rounded-2xl bg-white/70 backdrop-blur-xl border border-white/50 shadow-xl overflow-hidden">
+                <div class="p-6 border-b border-white/20 flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                        <i class="bi bi-stars text-brand-500"></i> Nouveautés & Disponibles
+                    </h2>
+                     <a asp-controller="Livres" asp-action="Index" class="text-sm font-medium text-brand-600 hover:text-brand-700">Tout voir &rarr;</a>
+                </div>
+                <div class="p-6">
+                    @if (Model.AvailableBooks != null && Model.AvailableBooks.Any())
+                    {
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                            @foreach (var book in Model.AvailableBooks.Take(6))
+                            {
+                                var isBorrowedByMe = Model.MemberLoans.Any(l => l.LivreId == book.Id && !l.IsReturned);
+                                var isOutOfStock = book.NombreExemplaires <= 0;
+                                var isUnavailable = isBorrowedByMe || isOutOfStock;
+
+                                <div class="group relative bg-white/80 rounded-xl shadow-sm border border-white/60 overflow-hidden hover:shadow-lg transition-all duration-300 @(isUnavailable ? "opacity-75 grayscale" : "")">
+                                    <div class="aspect-[2/3] w-full overflow-hidden bg-slate-200 relative">
+                                        <img src="@book.GetImageUrl()" alt="@book.Titre" class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                        @if (isBorrowedByMe)
+                                        {
+                                            <div class="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-sm">
+                                                <span class="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">Emprunté</span>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="p-4">
+                                        <h3 class="text-sm font-bold text-slate-900 truncate" title="@book.Titre">@book.Titre</h3>
+                                        <p class="text-xs text-slate-500 truncate">@book.Auteur</p>
+                                        <div class="mt-3">
+                                            @if (isUnavailable)
+                                            {
+                                                <button disabled class="w-full rounded-lg bg-slate-100 py-1.5 text-xs font-semibold text-slate-400 cursor-not-allowed">
+                                                    Non disponible
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <a asp-controller="Emprunts" asp-action="Create" asp-route-livreId="@book.Id" class="block w-full text-center rounded-lg bg-brand-600 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-brand-500 hover:shadow transition-all">
+                                                    Emprunter
+                                                </a>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-10">
+                            <p class="text-slate-500">Aucun livre disponible pour le moment.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar: Loans & Status -->
+        <div class="space-y-6">
+            
+            <!-- Alerts Section -->
+            @if (Model.LateLoansCount > 0 || Model.UnpaidFinesCount > 0)
+            {
+                <div class="rounded-2xl bg-white/70 backdrop-blur-xl border border-red-100 shadow-xl overflow-hidden">
+                    <div class="bg-red-50/80 p-4 border-b border-red-100">
+                        <h3 class="text-sm font-bold text-red-800 flex items-center gap-2">
+                             <i class="bi bi-exclamation-triangle-fill"></i> Attention requise
+                        </h3>
+                    </div>
+                    <div class="p-4 space-y-3">
+                         @if (Model.LateLoansCount > 0)
+                        {
+                            <div class="flex items-start gap-3 p-3 rounded-lg bg-red-50/50 border border-red-100/50">
+                                <i class="bi bi-clock-history text-red-500 mt-0.5"></i>
+                                <div>
+                                    <p class="text-sm font-semibold text-red-800">@Model.LateLoansCount Retard(s)</p>
+                                    <p class="text-xs text-red-600 mt-0.5">Veuillez restituer ces livres dès que possible.</p>
+                                </div>
+                            </div>
+                        }
+                        @if (Model.UnpaidFinesCount > 0)
+                        {
+                             <div class="flex items-start gap-3 p-3 rounded-lg bg-orange-50/50 border border-orange-100/50">
+                                <i class="bi bi-cash text-orange-500 mt-0.5"></i>
+                                <div>
+                                    <p class="text-sm font-semibold text-orange-800">@Model.UnpaidFinesCount Amende(s)</p>
+                                    <p class="text-xs text-orange-600 mt-0.5">Des frais sont en attente de régularisation.</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            <!-- Active Loans List -->
+            <div class="rounded-2xl bg-white/70 backdrop-blur-xl border border-white/50 shadow-xl overflow-hidden h-fit">
+                <div class="p-4 border-b border-white/20">
+                     <h2 class="text-lg font-bold text-slate-800">Mes Emprunts</h2>
+                </div>
+                <div class="divide-y divide-white/40">
+                    @if (Model.MemberLoans.Any(l => !l.IsReturned))
+                    {
+                        @foreach (var loan in Model.MemberLoans.Where(l => !l.IsReturned).OrderBy(l => l.DateRetourPrevue).Take(4))
+                        {
+                            <div class="p-4 hover:bg-white/40 transition-colors">
+                                <div class="flex justify-between items-start mb-1">
+                                    <h4 class="text-sm font-semibold text-slate-900 line-clamp-1">@loan.Livre?.Titre</h4>
+                                    @if (loan.IsLate)
+                                    {
+                                        <span class="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">Retard</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">@loan.DateRetourPrevue.ToString("dd MMM")</span>
+                                    }
+                                </div>
+                                <p class="text-xs text-slate-500">Pris le @loan.DateEmprunt.ToString("dd/MM/yyyy")</p>
+                            </div>
+                        }
+                        <div class="p-3 bg-white/30 text-center">
+                            <a asp-controller="Membres" asp-action="Profil" class="text-xs font-semibold text-brand-600 hover:text-brand-700">Voir tout l'historique</a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="p-8 text-center">
+                             <div class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-slate-50 mb-3">
+                                <i class="bi bi-journal text-slate-400 text-xl"></i>
+                            </div>
+                            <p class="text-sm text-slate-500">Aucun emprunt en cours.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+             <!-- Reservations List -->
+             @if (Model.ReservationsCount > 0)
+            {
+                <div class="rounded-2xl bg-white/70 backdrop-blur-xl border border-white/50 shadow-xl overflow-hidden">
+                     <div class="p-4 border-b border-white/20 bg-amber-50/50">
+                         <h2 class="text-lg font-bold text-amber-900">Réservations</h2>
+                    </div>
+                    <div class="p-4 space-y-3">
+                         @foreach (var res in Model.MemberReservations.Take(3))
+                        {
+                            <div class="flex items-center gap-3">
+                                <div class="h-2 w-2 rounded-full bg-amber-400"></div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-slate-900 truncate">@res.Livre?.Titre</p>
+                                    <p class="text-xs text-slate-500">Depuis le @res.DateReservation.ToString("dd MMM")</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
