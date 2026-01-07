@@ -94,3 +94,4 @@ L'application utilise une interface **Glassmorphism** moderne :
 
 **Amine Charro**
 [Profil GitHub](https://github.com/aminecharro01)
+[Profil Linkedin](https://www.linkedin.com/in/charroamine/)
