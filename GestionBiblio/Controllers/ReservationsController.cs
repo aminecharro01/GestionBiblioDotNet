@@ -43,7 +43,7 @@ namespace GestionBiblio.Controllers
                 var currentUser = await _userManager.GetUserAsync(User);
                 if (currentUser == null || currentUser.Email == null)
                 {
-                    return Forbid();
+                    return Challenge(); // Force re-login if user session is stale
                 }
                 var membre = await _membreService.GetOrCreateMemberByEmailAsync(currentUser.Email);
                 return View(await _reservationService.GetReservationsByMemberIdAsync(membre.Id));
@@ -71,7 +71,7 @@ namespace GestionBiblio.Controllers
                 var currentUser = await _userManager.GetUserAsync(User);
                 if (currentUser == null || currentUser.Email == null)
                 {
-                    return Forbid();
+                    return Challenge(); // Force re-login if user session is stale
                 }
                 var membre = await _membreService.GetByEmailAsync(currentUser.Email);
                 if (membre == null || membre.Id != reservation.MembreId)
@@ -97,7 +97,7 @@ namespace GestionBiblio.Controllers
                 var currentUser = await _userManager.GetUserAsync(User);
                 if (currentUser == null || currentUser.Email == null)
                 {
-                    return Forbid();
+                    return Challenge(); // Force re-login if user session is stale
                 }
                 var membre = await _membreService.GetOrCreateMemberByEmailAsync(currentUser.Email);
 
@@ -105,7 +105,7 @@ namespace GestionBiblio.Controllers
                 ViewData["MembreId"] = new SelectList(new List<Membre> { membre }, "Id", "FullName", membre.Id);
                 ViewData["MembreIdReadOnly"] = true;
             }
-            return View();
+            return View(new Reservation { DateReservation = DateTime.Now });
         }
 
         // POST: Reservations/Create
@@ -119,13 +119,17 @@ namespace GestionBiblio.Controllers
                 var currentUser = await _userManager.GetUserAsync(User);
                 if (currentUser == null || currentUser.Email == null)
                 {
-                    return Forbid();
+                    return Challenge();
                 }
                 var membre = await _membreService.GetByEmailAsync(currentUser.Email);
-                if (membre == null || membre.Id != reservation.MembreId)
+                if (membre == null)
                 {
-                    return Forbid(); // Attempt to create reservation for another member
+                    return Forbid(); 
                 }
+                // SECURITY FIX: Force the reservation to be for the logged-in user, ignoring form data
+                reservation.MembreId = membre.Id;
+                
+                // Remove the old check "if (membre.Id != reservation.MembreId)" since we just overwrote it.
             }
 
             if (ModelState.IsValid)
@@ -141,6 +145,15 @@ namespace GestionBiblio.Controllers
                     ModelState.AddModelError(string.Empty, ex.Message);
                 }
             }
+            else 
+            {
+               // DEBUGGING: Log validation errors
+               var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
+               foreach (var error in errors)
+               {
+                   Console.WriteLine($"DEBUG RESERVATION ERROR: {error}");
+               }
+            }
 
             // Repopulate ViewDatas if ModelState is invalid
             if (User.IsInRole("Admin"))
@@ -153,7 +166,7 @@ namespace GestionBiblio.Controllers
                 var currentUser = await _userManager.GetUserAsync(User);
                 if (currentUser == null || currentUser.Email == null)
                 {
-                    return Forbid();
+                    return Challenge(); // Force re-login if user session is stale
                 }
                 var membre = await _membreService.GetByEmailAsync(currentUser.Email);
                 ViewData["LivreId"] = new SelectList(_context.Livres, "Id", "Titre", reservation.LivreId);

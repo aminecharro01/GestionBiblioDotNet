@@ -72,7 +72,7 @@ namespace GestionBiblio.Controllers
 
                 if (currentUser == null || currentUser.Email == null)
                 {
-                    return Forbid();
+                    return Challenge();
                 }
 
                 var membre = await _membreService.GetOrCreateMemberByEmailAsync(currentUser.Email);
@@ -115,6 +115,11 @@ namespace GestionBiblio.Controllers
 
                 return View("MemberDashboard", model);
             }
+        }
+        [AllowAnonymous]
+        public IActionResult AccessDenied()
+        {
+            return View();
         }
     }
 }

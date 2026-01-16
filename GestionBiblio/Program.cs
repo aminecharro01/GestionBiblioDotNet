@@ -26,7 +26,7 @@ builder.Services.AddRazorPages();
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = $"/Identity/Account/Login";
-    options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
+    options.AccessDeniedPath = $"/Home/AccessDenied";
 });
 
 var app = builder.Build();

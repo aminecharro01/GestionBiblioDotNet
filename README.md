@@ -1,96 +1,96 @@
-# 📚 GestionBiblio - Système de Gestion de Bibliothèque (v1.0.0)
+# 📚 GestionBiblio - Library Management System (v1.0.0)
 
-Une application web complète pour la gestion d'une bibliothèque, développée avec ASP.NET Core MVC.
+A comprehensive web application for library management, developed with ASP.NET Core MVC.
 
-## 🌟 Fonctionnalités
+## 🌟 Features
 
-### 👨‍💼 Pour les Administrateurs
-*   **Tableau de Bord** : Vue d'ensemble avec statistiques (Livres, Membres, Emprunts actifs/retard, Réservations) et graphiques.
-*   **Gestion des Livres** : Ajouter, modifier, supprimer des livres avec gestion des catégories et upload d'images.
-*   **Gestion des Membres** : Gérer les inscriptions et les profils des membres.
-*   **Suivi des Emprunts** : Enregistrer les prêts, gérer les retours, visualiser les retards.
-*   **Gestion des Amendes** : Créer et suivre le paiement des amendes pour les retards.
-*   **Export des Données** : Exportation des listes (ex: amendes) au format CSV.
+### 👨‍💼 For Administrators
+*   **Dashboard**: Overview with statistics (Books, Members, Active/Overdue Loans, Reservations) and charts.
+*   **Book Management**: Add, edit, delete books with category management and image upload.
+*   **Member Management**: Manage registrations and member profiles.
+*   **Loan Tracking**: Record loans, manage returns, view overdue items.
+*   **Fine Management**: Create and track payment of fines for delays.
+*   **Data Export**: Export lists (e.g., fines) in CSV format.
 
-### 👤 Pour les Membres
-*   **Catalogue** : Rechercher et consulter les livres disponibles.
-*   **Espace Personnel** : Voir ses emprunts en cours, son historique et ses réservations.
-*   **Réservation** : Réserver un livre si celui-ci n'est pas disponible.
+### 👤 For Members
+*   **Catalog**: Search and browse available books.
+*   **Personal Space**: View current loans, history, and reservations.
+*   **Reservation**: Reserve a book if it is currently out of stock.
 
-## 🛠️ Stack Technique
+## 🛠️ Tech Stack
 
-*   **Framework** : ASP.NET Core 8.0 (MVC)
-*   **Langage** : C# 10+
-*   **Base de Données** : SQL Server (via Entity Framework Core 8)
-*   **ORM** : Entity Framework Core (Code-First)
-*   **Authentification** : ASP.NET Core Identity
-*   **Frontend** :
+*   **Framework**: ASP.NET Core 8.0 (MVC)
+*   **Language**: C# 10+
+*   **Database**: SQL Server (via Entity Framework Core 8)
+*   **ORM**: Entity Framework Core (Code-First)
+*   **Authentication**: ASP.NET Core Identity
+*   **Frontend**:
     *   Razor Views (.cshtml)
-    *   **Tailwind CSS** (via CDN) pour le styling moderne.
-    *   **Glassmorphism UI** (Design personnalisé avec effets de transparence).
+    *   **Tailwind CSS** (via CDN) for modern styling.
+    *   **Glassmorphism UI** (Custom design with transparency effects).
     *   Bootstrap Icons.
-    *   Chart.js pour la visualisation des données.
+    *   Chart.js for data visualization.
 
-## 🗄️ Conception de la Base de Données
+## 🗄️ Database Design
 
-Le schéma relationnel comprend les entités principales suivantes :
+The relational schema includes the following main entities:
 
-*   **Livre** : Titre, Auteur, ISBN, Image, Stock, Catégorie.
-*   **Membre** : Informations personnelles (liées à Identity User).
-*   **Emprunt** : Lien entre Livre et Membre avec Date d'emprunt, Date de retour prévue et effective.
-*   **Reservation** : File d'attente pour les livres hors stock.
-*   **Amende** : Pénalités financières liées aux emprunts en retard.
-*   **Categorie** : Classification des livres.
+*   **Book (Livre)**: Title, Author, ISBN, Image, Stock, Category.
+*   **Member (Membre)**: Personal information (linked to Identity User).
+*   **Loan (Emprunt)**: Link between Book and Member with Loan Date, Expected Return Date, and Actual Return Date.
+*   **Reservation**: Queue for out-of-stock books.
+*   **Fine (Amende)**: Financial penalties linked to overdue loans.
+*   **Category (Categorie)**: Classification of books.
 
-## 🚀 Installation et Configuration
+## 🚀 Installation and Configuration
 
-### Prérequis
+### Prerequisites
 *   [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-*   [SQL Server](https://www.microsoft.com/en-us/sql-server/sql-server-downloads) (Express ou Developer)
-*   Visual Studio 2022 ou VS Code
+*   [SQL Server](https://www.microsoft.com/en-us/sql-server/sql-server-downloads) (Express or Developer)
+*   Visual Studio 2022 or VS Code
 
-### Étapes d'installation
+### Installation Steps
 
-1.  **Cloner le dépôt**
+1.  **Clone the repository**
     ```bash
-    git clone https://github.com/aminecharro01/GestionBiblioDotNet.git
-    cd GestionBiblioDotNet
+    git clone https://github.com/aminecharro01/crimeAnalytics.git
+    cd crimeAnalytics
     ```
 
-2.  **Configurer la Base de Données**
-    Ouvrez `appsettings.json` et modifiez la chaîne de connexion `DefaultConnection` si nécessaire pour pointer vers votre instance SQL Server locale.
+2.  **Configure Database**
+    Open `appsettings.json` and modify the `DefaultConnection` string if necessary to point to your local SQL Server instance.
     ```json
     "ConnectionStrings": {
       "DefaultConnection": "Server=YOUR_SERVER_NAME;Database=LibraryDB;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True"
     }
     ```
 
-3.  **Appliquer les Migrations**
-    Crée la base de données et les tables nécessaires.
+3.  **Apply Migrations**
+    Creates the database and necessary tables.
     ```bash
     dotnet ef database update
     ```
 
-4.  **Lancer l'Application**
+4.  **Run the Application**
     ```bash
     dotnet run
     ```
-    L'application sera accessible à l'adresse `https://localhost:7152` (ou le port indiqué dans la console).
+    The application will be accessible at `https://localhost:7152` (or the port indicated in the console).
 
-5.  **Compte Administrateur par Défaut**
-    Au premier lancement, un compte administrateur est créé (voir `Program.cs` pour les détails de seeding) :
-    *   **Email** : `admin@gestionbiblio.com`
-    *   **Mot de passe** : `Admin123!`
+5.  **Default Administrator Account**
+    On first launch, an administrator account is seeded (see `Program.cs` for details):
+    *   **Email**: `admin@gestionbiblio.com`
+    *   **Password**: `Admin123!`
 
 ## 🎨 Design
 
-L'application utilise une interface **Glassmorphism** moderne :
-*   Arrière-plan immersif fixe.
-*   Cartes et conteneurs semi-transparents avec flou (`backdrop-blur`).
-*   Typographie soignée (Police 'Inter').
-*   Palette de couleurs cohérente (Indigo/Slate).
+The application uses a modern **Glassmorphism** interface:
+*   Fixed immersive background.
+*   Semi-transparent cards and containers with blur (`backdrop-blur`).
+*   Polished typography ('Inter' font).
+*   Consistent color palette (Indigo/Slate).
 
-## 👤 Auteur
+## 👤 Author
 
 **Amine Charro**
-[Profil GitHub](https://github.com/aminecharro01)
+[GitHub Profile](https://github.com/aminecharro01)
